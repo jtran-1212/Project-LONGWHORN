@@ -31,7 +31,7 @@ time_span = [0, 10 * 365.25 * 24 * 60 * 60]
 soln = solve_ivp(diff_eq1, time_span, [N_U_238], t_eval=np.linspace(time_span[0], time_span[1], 100))
 
 
-def diffeq2():
+def diffeq2(): # JOHN TRAN
     return 0
 
 
