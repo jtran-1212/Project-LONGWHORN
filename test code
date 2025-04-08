@@ -6,15 +6,16 @@ half_life_U_238 = (4.5*(10^9))*365.35*24*60*60 # in seconds
 decay_const_U_238 = np.log(2)/half_life_U_238
 branching ratio= 0.7 /100 # u238 dont have gamma ray so neutron capture rate ??
 flux = 10**12 # assumed flux in typical research reactor (n/cm^2/s)
+sigma_Ngamma = 0.8 # using john's u238 gamma
 
 N_U_238 = 1000 #some random number
 activity_U_238 = decay_const_U_238 * N_U_238
 phi_0 = branching_ratio* activity_U_238
 
 
-def flux(t, phi_0, flux_decay_constant): # for U-238, not sure about this formula
+'''def flux(t, phi_0, flux_decay_constant): # for U-238, not sure about this formula
     flux = phi_0 *np.exp(-flux_decay_constant *t)
-    return flux
+    return flux'''
 
 #idk about sigma_U238
     
@@ -23,9 +24,9 @@ def diffeq1(N_U_238, flux_U_238, sigma_U_238): #rate of change of N_U-239 over t
     rate_of_change_U238 = (-1*half_life_U_238*N_U_238) - (flux_U_238*sigma_U_238*N_U_238)
     return rate_of_change_U238
 
-fluxU238 = flux(5,phi_0, 0.08) //flux decay is some random number
+#fluxU238 = flux(5,phi_0, 0.08) //not using this function anymore
 
-diff_eq1 = diffeq1(N_U_238,fluxU238, .23)//sigma_U_238 is some random number
+diff_eq1 = diffeq1(N_U_238,flux, sigma_Ngamma)//sigma_U_238 is some random number
 
 time_span = [0, 10 * 365.25 * 24 * 60 * 60]
 
@@ -36,7 +37,7 @@ def diffeq2(t, NU239):
 
     # defining constants
     a = 1 # neutron flux (n/cm^2/s)
-    sigma_Ngamma = 0.8 # cross-sectional area for U-238 gamma (10^-28 m^2)
+    #sigma_Ngamma = 0.8 # cross-sectional area for U-238 gamma (10^-28 m^2)
     sigma_Ncapture = 0.5 # cross-sectional area for U-239 neutron capture (10^-28 m^2)
     half_life_U239 = 23.45*60 # (s)
     lambda_U239 = np.log(2)/half_life_U239 # decay constant for U-239 (1/s)
