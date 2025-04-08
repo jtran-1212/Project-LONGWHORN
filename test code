@@ -69,7 +69,47 @@ def diffeq2(t, NU239):
 
     return solution
 
+def diffeq3():
+    #Defining constants
+    half_life_U239 = 23.45*60 #seconds
+    lambda_U239 = 0.000493 #decay constant [1/s]
+    half_life_Np239 = 2.36*24*60*60 #seconds
+    lambda_Np239 = 0.000003 #decay constant [1/s]
+    sigma_Np239_cap = 75e-24 #neutron capture cross section for Np-239 [cm^2]
+    flux = 1e12 #neutron flux (n/cm^2/s) 
+    
+    #initial conditions
+    N_U239_0 = 1e5 #initial U-239 atoms
+    N_Np239_0 = 0 #starting with no Np-239
+    
+    #time
+    t_start = 0
+    t_end = 1e6 #seconds
+    time_eval = np.linspace(t_start, t_end, 1000)
+    
+    def N_U239(t):
+        return N_U239_0 * np.exp(-lambda_U239 * t)
+    
+    def dNNp239_dt(t, N_Np239):
+        source = lambda_U239 * N_U239(t)
+        loss_decay = lambda_Np239 * N_Np239
+        loss_capture = flux * sigma_Np239_cap * N_Np239
+        return source - loss_decay - loss_capture
+    
+    #solving ODE
+    solution = solve_ivp(dNNp239_dt, [t_start, t_end], [N_Np239_0], t_eval=time_eval)
+    
+    #plotting
+    plt.plot(solution.t, solution.y[0], label='Np-239')
+    plt.xlabel('Time (s)')
+    plt.ylabel('Np-239 over time')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+    
+    return solution
 
-def diffeq3and4():
+def diffeq4():
     return 0
 
