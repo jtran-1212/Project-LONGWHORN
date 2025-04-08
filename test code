@@ -5,6 +5,7 @@ from scipy.integrate import solve_ivp
 half_life_U_238 = (4.5*(10^9))*365.35*24*60*60 # in seconds
 decay_const_U_238 = np.log(2)/half_life_U_238
 branching ratio= 0.7 /100 # u238 dont have gamma ray so neutron capture rate ??
+flux = 10**12 # assumed flux in typical research reactor (n/cm^2/s)
 
 N_U_238 = 1000 #some random number
 activity_U_238 = decay_const_U_238 * N_U_238
@@ -31,8 +32,42 @@ time_span = [0, 10 * 365.25 * 24 * 60 * 60]
 soln = solve_ivp(diff_eq1, time_span, [N_U_238], t_eval=np.linspace(time_span[0], time_span[1], 100))
 
 
-def diffeq2(): # JOHN TRAN
-    return 0
+def diffeq2(t, NU239):
+
+    # defining constants
+    a = 1 # neutron flux (n/cm^2/s)
+    sigma_Ngamma = 0.8 # cross-sectional area for U-238 gamma (10^-28 m^2)
+    sigma_Ncapture = 0.5 # cross-sectional area for U-239 neutron capture (10^-28 m^2)
+    half_life_U239 = 23.45*60 # (s)
+    lambda_U239 = np.log(2)/half_life_U239 # decay constant for U-239 (1/s)
+    NU239_0 = 0 # initial NU-239 concentration 
+    NU238_0 = 1 # initial NU-238 concentration
+    time_span = (0, 100) # (s)
+    time_bounds = np.linspace(time_span[0], time_span[1], 500) # time bounds (s)
+
+    def NU238(t):
+        return NU238_0 * np.exp(-a * sigma_Ngamma * t)
+
+    def dNU239_dt(t, NU239):
+        source = a * sigma_Ngamma * NU238(t)
+        loss_to_decay = lambda_U239 * NU239
+        loss_to_capture = a * sigma_Ncapture * NU239
+        return source - loss_to_decay - loss_to_capture
+    
+    # using python ODE solver
+    solution = solve_ivp(dNU239_dt, time_span, [NU239_0], time_bounds=time_bounds)
+
+    #plotting 
+    plt.plot(solution.t, solution.y[0], label='NU-239(t)')
+    plt.xlabel('Time (s)')
+    plt.ylabel('NU-239 Concentration')
+    plt.title('NU-239 Evolution with NU-238 Depletion')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    return solution
 
 
 def diffeq3and4():
