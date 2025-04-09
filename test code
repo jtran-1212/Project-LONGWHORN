@@ -1,36 +1,44 @@
 import numpy as np
 from scipy.integrate import solve_ivp
+import matplotlib.pyplot as plt
+
+import numpy as np
+from scipy.integrate import solve_ivp
+import matplotlib.pyplot as plt
 
 #constants 
 half_life_U_238 = (4.5*(10^9))*365.35*24*60*60 # in seconds
 decay_const_U_238 = np.log(2)/half_life_U_238
-branching ratio= 0.7 /100 # u238 dont have gamma ray so neutron capture rate ??
+#branching ratio= 0.7 /100 # u238 dont have gamma ray so neutron capture rate ??
 flux = 10**12 # assumed flux in typical research reactor (n/cm^2/s)
-sigma_Ngamma = 0.8 # using john's u238 gamma
+sigma_Ngamma = 0.8e-24 # using john's u238 gamma in barns
 
-N_U_238 = 1000 #some random number
-activity_U_238 = decay_const_U_238 * N_U_238
-phi_0 = branching_ratio* activity_U_238
+N_U_238 = 1000 #some random number for initial condition
 
-
-'''def flux(t, phi_0, flux_decay_constant): # for U-238, not sure about this formula
-    flux = phi_0 *np.exp(-flux_decay_constant *t)
-    return flux'''
-
-#idk about sigma_U238
-    
-
-def diffeq1(N_U_238, flux_U_238, sigma_U_238): #rate of change of N_U-239 over time
-    rate_of_change_U238 = (-1*half_life_U_238*N_U_238) - (flux_U_238*sigma_U_238*N_U_238)
-    return rate_of_change_U238
-
-#fluxU238 = flux(5,phi_0, 0.08) //not using this function anymore
-
-diff_eq1 = diffeq1(N_U_238,flux, sigma_Ngamma)//sigma_U_238 is some random number
-
+#suppose a time span of 10 years
 time_span = [0, 10 * 365.25 * 24 * 60 * 60]
+t_eval = np.linspace(time_span[0], time_span[1], 100)
 
-soln = solve_ivp(diff_eq1, time_span, [N_U_238], t_eval=np.linspace(time_span[0], time_span[1], 100))
+
+
+# dN/dt = -lambda*N - phi*sigma*N
+def diff_eq1(t, N):
+    return -decay_const_U_238 * N - flux * sigma_Ngamma * N
+
+soln = solve_ivp(diff_eq1, time_span, [N_U_238], t_eval=t_eval)#diffeq1 solver
+
+plt.figure()
+plt.plot(soln.t / (365.25 * 24 * 3600), soln.y[0], label='U-238')
+
+plt.xlabel('Time (years)')
+plt.ylabel('Number of U-238 Atoms')
+plt.title('Depletion of U-238 Over Time')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+
 
 
 def diffeq2(t, NU239):
